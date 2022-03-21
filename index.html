@@ -190,13 +190,14 @@
 
         $(document).ready(function () {
             let indexOutput = 0;
+            let indexSpace = 0;
 
             function render1() {
                 let k = $('#k').val();
                 let chuoi = $('#input-text').val();
 
                 let i = 0;
-                while (k.length < chuoi.length) {
+                while (k.length < chuoi.length - chuoi.match(/([\s]+)/g).length) {
                     k += k[i++];
                 }
 
@@ -213,7 +214,8 @@
 
                 let i = 0;
                 while (k.length < chuoi.length) {
-                    k += chuoi[i++];
+                    k += chuoi[i] !== ' ' ? chuoi[i] : '';
+                    i++;
                 }
 
                 console.log('method 2');
@@ -243,6 +245,9 @@
                     $('#toast-success').toast({ delay: 1000 });
                     $('#toast-success').toast('show',);
                     renderTable();
+                    indexOutput = 0;
+                    indexSpace = 0;
+
                     if ($("#option1").is(":checked")) {
                         $('#render-k').text(render1().toUpperCase());
                     } else {
@@ -333,6 +338,7 @@
                     $('#stepbystep').attr('disabled', 'disabled');
                     $('#render').removeAttr('disabled');
                     indexOutput = 0;
+                    indexSpace = 0;
                 } else {
                     if (output.length > input.length) {
                         $('#output-text').val('');
@@ -362,19 +368,26 @@
                         // console.log('step by step', alpha.indexOf(key[indexOutput]));
                         // console.log('step by step', table[alpha.indexOf(input[indexOutput])][alpha.indexOf(key[indexOutput])]);
                         let i = alpha.indexOf(key[indexOutput]);
-                        let j = alpha.indexOf(input[indexOutput]);
+                        let j = alpha.indexOf(input[indexOutput + indexSpace]);
 
-                        $('#box-char').empty()
-                            .append('<h3 class="text-light">Step</h3>')
-                            .append(`<div class="col-12 text-light">i: ${indexOutput + 1}</div>`)
-                            .append(`<div class="col-12 text-light">input = ${input[indexOutput]}</div>`)
-                            .append(`<div class="col-12 text-light">key = ${key[indexOutput]}</div>`)
+                        console.log(i, j);
+                        if (j == -1) {
+                            $('#output-text').val($('#output-text').val() + ' ');
+                            indexSpace += 1;
+                        } else {
+                            $('#box-char').empty()
+                                .append('<h3 class="text-light">Step</h3>')
+                                .append(`<div class="col-12 text-light">i: ${indexOutput + 1}</div>`)
+                                .append(`<div class="col-12 text-light">input = ${input[indexOutput + indexSpace]}</div>`)
+                                .append(`<div class="col-12 text-light">key = ${key[indexOutput]}</div>`)
 
-                        $('#output-text').val($('#output-text').val() + table[i][j]);
-                        indexOutput += 1;
+                            $('#output-text').val($('#output-text').val() + table[i][j]);
+                            indexOutput += 1;
 
-                        $(`#alpha-${i} button:nth-child(${j + 2})`).addClass('btn-warning');
-                        $(`#alpha-${i} button:nth-child(${j + 2})`).removeClass('btn-light');
+                            $(`#alpha-${i} button:nth-child(${j + 2})`).addClass('btn-warning');
+                            $(`#alpha-${i} button:nth-child(${j + 2})`).removeClass('btn-light');
+                        }
+
 
                     }
 
@@ -453,6 +466,34 @@
             // });
 
             $('#input-text').on({
+                keyup: function (e) {
+
+                    let k = parseInt($('#k').val());
+                    let chuoi = $('#input-text').val().toUpperCase();
+
+                    let alpha = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+                    // let output = '';
+                    // for (let i = 0; i < chuoi.length; i++) {
+                    //     output += alpha[(alpha.indexOf(chuoi[i]) + k) % 26];
+                    //     // console.log(chuoi[i], alpha.indexOf(chuoi[i]));
+                    // }
+                    // $('#output-text').val(output);
+                    // console.log(output);
+                }, change: function () {
+                    // this.value = this.value.replace(/\s/gm, "");
+                }
+                , keypress: function (e) {
+                    let keyPass = [39, 59, 58, 34, 44, 46, 60, 62, 45, 61, 91, 93, 47, 63, 49, 50, 51, 52, 53, 54, 55, 56, 57, 48];
+                    console.log(e.which);
+                    if (keyPass.includes(e.which)) {
+                        return false;
+                    }
+                }
+            }
+            );
+
+            $('#k').on({
                 keyup: function (e) {
 
                     let k = parseInt($('#k').val());
